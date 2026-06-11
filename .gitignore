@@ -1,0 +1,10 @@
+.env
+.venv/
+uv.lock
+__pycache__/
+*.py[cod]
+db.sqlite3
+staticfiles/
+metrics.log
+.server.log
+.DS_Store
