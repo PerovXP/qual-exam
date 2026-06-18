@@ -1,6 +1,25 @@
 from django import forms
+from django.db import models
 
 from .models import Event, Product
+
+
+DATETIME_LOCAL_FORMAT = "%Y-%m-%dT%H:%M"
+
+
+def setup_form_fields(form):
+    for name, field in form.fields.items():
+        model_field = form._meta.model._meta.get_field(name)
+        if isinstance(model_field, models.DateTimeField):
+            field.input_formats = [DATETIME_LOCAL_FORMAT]
+            field.widget = forms.DateTimeInput(
+                attrs={"class": "form-control", "type": "datetime-local"},
+                format=DATETIME_LOCAL_FORMAT,
+            )
+        elif isinstance(model_field, models.BooleanField):
+            field.widget.attrs["class"] = "form-check-input"
+        else:
+            field.widget.attrs["class"] = "form-control"
 
 
 class ProductForm(forms.ModelForm):
@@ -10,19 +29,14 @@ class ProductForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs["class"] = "form-control"
+        setup_form_fields(self)
 
 
 class EventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = ["title", "location", "event_date", "max_guests"]
-        widgets = {
-            "event_date": forms.DateTimeInput(attrs={"type": "datetime-local"}),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for field in self.fields.values():
-            field.widget.attrs["class"] = "form-control"
+        setup_form_fields(self)
