@@ -1,3 +1,4 @@
+from datetime import datetime
 from pathlib import Path
 
 from django.conf import settings
@@ -25,11 +26,13 @@ class RequestMetricsMiddleware:
             self.__class__.status_5xx += 1
 
         line = (
+            f"{datetime.now():%Y-%m-%d %H:%M:%S} "
             f"requests_total={self.total} "
             f"responses_2xx={self.status_2xx} "
             f"responses_4xx={self.status_4xx} "
             f"responses_5xx={self.status_5xx}"
         )
         print(line)
-        self.log_path.write_text(line + "\n", encoding="utf-8")
+        with self.log_path.open("a", encoding="utf-8") as fh:
+            fh.write(line + "\n")
         return response
