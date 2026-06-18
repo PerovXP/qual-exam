@@ -7,6 +7,15 @@ from .forms import EventForm, ProductForm
 from .models import Event, Product
 
 
+class FormStatusMixin:
+    """Возвращает HTTP 400 при ошибках валидации формы (требование ТЗ)."""
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        response.status_code = 400
+        return response
+
+
 def ping(request):
     return HttpResponse("pong")
 
@@ -21,7 +30,7 @@ class ProductListView(ListView):
     context_object_name = "products"
 
 
-class ProductCreateView(CreateView):
+class ProductCreateView(FormStatusMixin, CreateView):
     model = Product
     form_class = ProductForm
     template_name = "exam/form.html"
@@ -29,7 +38,7 @@ class ProductCreateView(CreateView):
     extra_context = {"title": "Новый товар", "cancel_url": reverse_lazy("product_list")}
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(FormStatusMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = "exam/form.html"
@@ -50,7 +59,7 @@ class EventListView(ListView):
     context_object_name = "events"
 
 
-class EventCreateView(CreateView):
+class EventCreateView(FormStatusMixin, CreateView):
     model = Event
     form_class = EventForm
     template_name = "exam/form.html"
@@ -58,7 +67,7 @@ class EventCreateView(CreateView):
     extra_context = {"title": "Новое мероприятие", "cancel_url": reverse_lazy("event_list")}
 
 
-class EventUpdateView(UpdateView):
+class EventUpdateView(FormStatusMixin, UpdateView):
     model = Event
     form_class = EventForm
     template_name = "exam/form.html"
